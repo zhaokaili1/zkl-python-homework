@@ -136,11 +136,14 @@ x, y = np.array(X), np.array(Y).reshape(-1, 1)
 xtx = np.dot(x.T, x)
 xty = np.dot(x.T, y)
 beta = np.linalg.solve(xtx, xty)#系数矩阵
+#results.params 
 
 yhat = np.dot(x, beta)#因变量估计值
+#results.predict(x)
+#results.fittedvalues
 
 e = y - yhat #回归误差向量
-
+#results.resid
 ```
 ### 多元线性回归函数的拟合优度
 
@@ -148,8 +151,11 @@ e = y - yhat #回归误差向量
 sst = (n-1) * np.var(y)#总平方和
 sse = np.sum(e**2)#残差平方和
 ssr = sst - sse#回归平方和
+
 r2 = ssr / sst#R方
+#results.rsquared
 r2_adjusted = 1 - (sse/(n-p)/(sst/(n-1)))#调整后的R方
+#results.rsquared_adj
 ```
 总平方和SST为477755461219.4,残差平方和SSE为1669649534.8,
 回归平方和SSR为476085811684.6,判定系数R方为0.9965,调整后的R方为0.9962,
@@ -159,8 +165,10 @@ r2_adjusted = 1 - (sse/(n-p)/(sst/(n-1)))#调整后的R方
 
 ```{python}
 F_value = (ssr/(p-1)) / (sse/(n-p))
+#results.fvalue
 F_crit = stats.f.isf(0.95, p-1, n-p)
 p_value = stats.f.sf(F_value, p-1, n-p)
+#results.f_pvalue
 ```
 根据上面计算可得F值为3778.1204,在显著性水平为0.05时的临界值为0.1755,
 显然F值远大于临界值，所以可以拒绝原假设，即认为回归方程整体是显著的，
@@ -174,9 +182,12 @@ inv = np.linalg.inv(xtx)
 cov = sigma2hat * inv#回归系数的方差协方差阵
 se = np.sqrt(np.diag(cov)).reshape(-1, 1)#标准误
 t_value = beta / se #t统计量
+#results.tvalues
+
 t_crit = np.abs(stats.t.isf(0.975, n-p))
 t_crit_ = np.tile(t_crit, 5)
 p_value = stats.t.sf(np.abs(t_value), n-p) * 2 #p值
+
 
 t_test = {'t_value':t_value.ravel(), 't_crit':t_crit_, 'p_value':p_value.ravel()}
 
@@ -203,12 +214,13 @@ c = beta + t_crit * se
 
 ```{python}
 x_new = np.array([[1,80000,160000,3000,300000],[1,75000,150000,2800,250000]])
+# results.predict(x_new)
 yhat_new = np.dot(x_new, beta)
 yhat_new
 ```
 当Labor=80000，Kapital=160000，Technology=3000、Energy=300000，
 GDP的预测值为349081.707。
-
+dir(results)
 当Labor=75000，Kapital=150000，Technology=2800、Energy=250000，
 GDP的预测值为321173.545。
 
@@ -233,4 +245,4 @@ mean_c = yhat_new.ravel() + t_crit * np.sqrt(sigma2hat) * np.sqrt(np.diag(x_new.
   当Labor=75000，Kapital=150000，Technology=2800、Energy=250000，GDP的预测值在(337861.500, 360301.914)范围内的概率为95%。加上随机误差项的影响下，GDP的平均值在(308038.698, 334308.392)范围内的概率为95%。
 
   平均值区间的预测代表回归系数的波动导致预测因变量的平均响应的波动，个别值响应值是在原来的平均值的周围，以$\sigma$为标准差所形成的波动。由此可见个别值预测的区间宽于平均值预测的区间。
-```
+
