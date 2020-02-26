@@ -1,0 +1,156 @@
+---
+title: "多元线性回归分析"
+author: "赵凯力"
+date: "2020-01"
+output:
+  bookdown::html_document2:
+    fig_caption: true
+    highlight: haddock
+    keep_md: true
+    md_extensions: +east_asian_line_breaks
+    number_sections: true
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    - -M
+    - eqnPrefix=
+    seq_numbering: false
+    toc: true
+  bookdown::pdf_document2:
+    keep_tex: true
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    toc: false
+  slidy_presentation:
+    highlight: haddock
+  bookdown::word_document2:
+    fig_caption: true
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    reference_docx: ./style/word-styles-02.docx
+  ioslides_presentation:
+    highlight: haddock
+    slide_level: 3
+  beamer_presentation:
+    keep_tex: true
+    latex_engine: xelatex
+    toc: true
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    slide_level: 3
+    template: ./style/beamer-template.tex
+csl: ./style/chinese-gb7714-2005-numeric.csl
+css: ./style/markdown.css
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+institute: 中南财经政法大学统计与数学学院
+link-citations: true
+linkReferences: true
+chapters: true
+tableEqns: false
+autoEqnLabels: false
+---
+
+
+```{r setup, echo=F, purl=F}
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = TRUE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+knitr::opts_chunk$set(out.height="0.5\\textwidth", fig.width=5, fig.height=3, fig.align="center")
+```
+
+```{r prepare, echo=F, purl=F}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+### 获取数据集并建模
+
+从R数据集中选择boot包中的urine数据，这个数据是为了确定尿液的某些物理特性
+是否与草酸钙晶体的形成有关。该数据有79行7列，第一列r就是草酸钙晶体是否存在
+的指标，也就是标签，特征有6个，分别是gravity(尿的比重)、ph(尿液的pH值读数)、
+osmo(尿渗透压)、cond(尿液的电导率)、urea(尿素浓度)、calc(钙浓度),特征不是很多，所以不考虑进行特征工程。下面使用
+逻辑回归进行分析。
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt 
+import statsmodels.api as sm
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+
+dat = sm.datasets.get_rdataset('urine', package='boot', site='E:/github_repo/Rdatasets').data
+
+
+dat.isnull().sum() #两个空值，直接删掉
+dat.dropna(inplace=True)
+dat.index = range(dat.shape[0])
+
+
+X = dat.iloc[:, 1:]
+y = dat.iloc[:, 0]
+
+prop = (y == 1).sum() / y.shape[0] #标签比例约为4：6,即不存在标签不均衡问题
+
+Xtrain, Xtest, ytrain, ytest = train_test_split(X, y, test_size=0.3, random_state=420) #划分数据集
+
+results = LogisticRegression(random_state=0).fit(Xtrain, ytrain)
+results.coef_
+```
+根据系数可以得到logistic回归的表达式为：
+$$ln\frac{r}{1-r}=0.056gravity-0.297ph+0.051osmo-0.858cond-0.056urea+0.811calc$$
+
+### 模型的准确率
+```{python}
+results.score(Xtest, ytest) #测试集准确率
+results.score(Xtrain, ytrain) #训练集准确率
+cross_val_score(results, Xtrain, ytrain, cv=10).mean()#交叉验证分数
+```
+根据上面的代码，可以得到模型在测试集上的准确率为79.1%,
+在训练集上的准确率为79.2%，两者相差不大，但实际上交叉验证的分数只有73.6%,拟合的只是一般，接下来的目标是选择合适的超参数来提升模型的准确率。
+
+### 调参
+逻辑回归的参数不是很多，对模型影响较大的参数使正则化参数C，所以重点就是调这个参数，来看看模型还能不能继续提升，画学习曲线。
+```{python}
+C = np.arange(0.01, 10, 0.5)
+test = []
+
+for i in C:
+  logit = LogisticRegression(C=i, random_state=0, solver='liblinear')
+  score = cross_val_score(logit, Xtest, ytest, cv=10).mean()
+  test.append(score)
+print(max(test), C[test.index(max(test))])   
+plt.figure(figsize=(20, 5))
+plt.plot(C, test)
+plt.xticks(C)
+plt.show()
+```
+
+根据上面的学习曲线，最优的C值应该在0.01到1.51之间，所以继续细化学习曲线，选择最优C值
+```{python}
+C = np.linspace(0.01, 1.51, 100)
+test = []
+
+for i in C:
+  logit = LogisticRegression(C=i, random_state=0, solver='liblinear')
+  score = cross_val_score(logit, Xtest, ytest, cv=10).mean()
+  test.append(score)
+print(max(test), C[test.index(max(test))]) 
+plt.figure(figsize=(20, 5))
+plt.plot(C, test)
+plt.show()
+```
+根据打印的结果可以得出细化学习曲线后，交叉验证分数最高为75%，此时的C=0.0706060606060606，比什么都不调提高了1.4%，在调整了重要的正则化参数C以后，还只有这样的准确率，说明逻辑回归拟合这个模型的上限也差不多了，如果需要达到更高的话，需要换其他的分类模型，或者在特征上面做点功夫。

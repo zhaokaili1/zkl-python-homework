@@ -77,36 +77,31 @@ Sys.setlocale("LC_ALL", "Chinese")
 
 ### 构建数据集
 
-1. 从R中提取数据，建立数据框，提取GDP变量形成Y向量，提取Labor,Kapital,
-Technology,Energy四个变量加上截距向量构成设计矩阵X。
+1. 读取数据，提取GDP变量形成y向量，提取Labor,Kapital,
+Technology,Energy四个变量构成设计矩阵X。
 
 ```{python}
 import numpy as np 
 import pandas as pd
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
+from sklearn.linear_model import LinearRegression
 from scipy import stats
 import seaborn as sns 
 import matplotlib.pyplot as plt
 
 
-gdp = pd.read_excel('GDP.xls')
+gdp = pd.read_excel('..\..\GDP.xls')
 gdp.head()
 gdp.isnull().sum()
 gdp.dropna(inplace=True)
 gdp.index = range(gdp.shape[0])
-
-Y = gdp['GDP']
-X_ = gdp.loc[:,['Labor','Kapital','Technology','Energy']]
-X = sm.add_constant(X_)
-n = Y.shape[0]
-p = X.shape[1]
-
+gdp['const'] = 1
+y = gdp['GDP']
+X = gdp.loc[:,['const','Labor','Kapital','Technology','Energy']]
 ```
 ### 初步查看数据集信息
 
 ```{python}
-dat = pd.concat([X_, Y], 1)
+dat = pd.concat([X, y], 1)
 
 dat.describe()
 
@@ -120,42 +115,44 @@ sns.pairplot(dat,  kind='reg')
 ### 建立线性回归模型
 
 ```{python}
-results = sm.OLS(Y, X).fit()
-print(results.summary())
+X = X.values
+y = y.values
+results = LinearRegression().fit(X, y)
+results.coef_
+results.intercept_
 ```
-根据上面的拟合结果，调整后的R方达到了99.6%，可以说拟合的效果十分的好，
-然后观察各个参数的p值，可以发现除了变量Labor和常数外，另外三个参数的
-p值都通过了显著性检验，可以初步写出线性回归模型如下：
+线性回归模型如下：
 $$\widehat{GDP} =-2189.011-0.066Labor+3.130Kapital
 -69.927Technology+0.219Energy$$
 
 ### 参数估计(估计回归模型的系数矩阵、因变量估计值、回归误差向量)
 
 ```{python}
-x, y = np.array(X), np.array(Y).reshape(-1, 1)
+y1 = y.reshape(-1, 1)
 xtx = np.dot(x.T, x)
-xty = np.dot(x.T, y)
-beta = np.linalg.solve(xtx, xty)#系数矩阵
-#results.params 
+xty = np.dot(x.T, y1)
 
-yhat = np.dot(x, beta)#因变量估计值
-#results.predict(x)
-#results.fittedvalues
+beta = results.coef_#系数矩阵
 
-e = y - yhat #回归误差向量
-#results.resid
+y_pred = results.predict(X)#因变量估计值
+
+e = y - y_pred #回归误差向量
 ```
 ### 多元线性回归函数的拟合优度
 
 ```{python}
+n = X.shape[0]
+p = X.shape[1] 
+from sklearn.metrics import r2_score
 sst = (n-1) * np.var(y)#总平方和
 sse = np.sum(e**2)#残差平方和
 ssr = sst - sse#回归平方和
 
-r2 = ssr / sst#R方
-#results.rsquared
+r2 = r2_score(y, y_pred)#R方
+#r2 = ssr / sst
+
 r2_adjusted = 1 - (sse/(n-p)/(sst/(n-1)))#调整后的R方
-#results.rsquared_adj
+
 ```
 总平方和SST为477755461219.4,残差平方和SSE为1669649534.8,
 回归平方和SSR为476085811684.6,判定系数R方为0.9965,调整后的R方为0.9962,
@@ -165,10 +162,10 @@ r2_adjusted = 1 - (sse/(n-p)/(sst/(n-1)))#调整后的R方
 
 ```{python}
 F_value = (ssr/(p-1)) / (sse/(n-p))
-#results.fvalue
-F_crit = stats.f.isf(0.95, p-1, n-p)
-p_value = stats.f.sf(F_value, p-1, n-p)
-#results.f_pvalue
+
+F_crit = stats.f.isf(0.95, p, n-p)
+p_value = stats.f.sf(F_value, p, n-p)
+
 ```
 根据上面计算可得F值为3778.1204,在显著性水平为0.05时的临界值为0.1755,
 显然F值远大于临界值，所以可以拒绝原假设，即认为回归方程整体是显著的，
@@ -177,12 +174,12 @@ p_value = stats.f.sf(F_value, p-1, n-p)
 ### 回归系数显著性检验：t检验（双侧检验）
 
 ```{python}
-sigma2hat = sse / (n-p) #求σ^2的估计值
+mse = sse / (n-p) #求σ^2的估计值
 inv = np.linalg.inv(xtx)
-cov = sigma2hat * inv#回归系数的方差协方差阵
-se = np.sqrt(np.diag(cov)).reshape(-1, 1)#标准误
+cov = mse * inv#回归系数的方差协方差阵
+se = np.sqrt(np.diag(cov))#标准误
 t_value = beta / se #t统计量
-#results.tvalues
+
 
 t_crit = np.abs(stats.t.isf(0.975, n-p))
 t_crit_ = np.tile(t_crit, 5)
@@ -195,7 +192,7 @@ index = ['constant', 'Labor', 'Kapital', 'Technology', 'Energy']
 
 pd.DataFrame(t_test, index=index)
 ```
-上表的结果与之前进行拟合的结果几乎一致，常数项和变量Labor没有通过t检验，
+常数项和变量Labor没有通过t检验，
 即与GDP的线性效果不显著，而Kapital、Technology、Energy均通过了t检验，
 与GDP的线性效果显著，这也与之前画图的结果一致。
 
@@ -204,9 +201,9 @@ pd.DataFrame(t_test, index=index)
 ```{python}
 u = beta - t_crit * se
 c = beta + t_crit * se
-[*zip(index, zip(u.ravel(), c.ravel()))]
+[*zip(index, zip(u, c))]
 ```
-95%的置信区间如上所示,与summary()的置信区间值相差不大。
+95%的置信区间如上所示
 
 ### 回归模型的预测值
 
@@ -214,7 +211,7 @@ c = beta + t_crit * se
 
 ```{python}
 x_new = np.array([[1,80000,160000,3000,300000],[1,75000,150000,2800,250000]])
-# results.predict(x_new)
+#results.predict(x_new)
 yhat_new = np.dot(x_new, beta)
 yhat_new
 ```
