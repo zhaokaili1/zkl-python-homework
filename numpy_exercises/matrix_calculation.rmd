@@ -1,0 +1,319 @@
+---
+title: "矩阵计算Python笔记"
+author: "赵凯力"
+date: "2020-02"
+output:
+  bookdown::html_document2:
+    fig_caption: true
+    highlight: haddock
+    keep_md: true
+    md_extensions: +east_asian_line_breaks
+    number_sections: true
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    - -M
+    - eqnPrefix=
+    seq_numbering: false
+    toc: true
+  bookdown::pdf_document2:
+    keep_tex: true
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    toc: false
+  slidy_presentation:
+    highlight: haddock
+  bookdown::word_document2:
+    fig_caption: true
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    reference_docx: ./style/word-styles-02.docx
+  ioslides_presentation:
+    highlight: haddock
+    slide_level: 3
+  beamer_presentation:
+    keep_tex: true
+    latex_engine: xelatex
+    toc: true
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    slide_level: 3
+    template: ./style/beamer-template.tex
+csl: ./style/chinese-gb7714-2005-numeric.csl
+css: ./style/markdown.css
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+institute: 中南财经政法大学统计与数学学院
+link-citations: true
+linkReferences: true
+chapters: true
+tableEqns: false
+autoEqnLabels: false
+---
+
+
+```{r setup, echo=F, purl=F}
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = TRUE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+knitr::opts_chunk$set(out.height="0.5\\textwidth", fig.width=5, fig.height=3, fig.align="center")
+```
+
+```{r prepare, echo=F, purl=F}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 创建一个数组
+在python中创建数组可以使用numpy包中的array函数，例如
+```{python}
+import numpy as np
+x = np.array([1, 2, 3, 4])
+x
+```
+
+# 创建一个矩阵
+在python中可以用函数np.matrix()函数来创建矩阵。在numpy中，matrix是
+array的一个小分支，包含于array，所以matrix拥有array的所有特性。创建矩阵的方法有很多种，下面举例分析：
+```{python}
+np.matrix(x) #返回x的copy
+np.mat(x) #不返回copy,等价于np.asmatrix(x)
+```
+使用reshape函数可以控制矩阵的行数和列数，默认按行排列，参数order设置
+为'F'则可以按列排列。例如：
+```{python}
+x = np.arange(12)
+np.mat(x).reshape((3, 4))
+np.mat(x).reshape((3, 4), order='F')
+```
+
+# 矩阵转置
+$A$为$m\times n$矩阵,求$A^{T}$可以使用函数np.transpose(A)或者A.T，
+例如：
+```{python}
+A = np.mat(x).reshape((3, 4))
+A.T
+np.transpose(A)
+```
+
+# 矩阵相加减
+在python中对同行同列矩阵相加减，可用符号："+"、"-"，例如：
+```{python}
+A = B = np.mat(range(12)).reshape((3, 4))
+A + B
+A - B
+```
+
+# 数与矩阵相乘
+$A$为$m\times n$矩阵,c为实数，在Python中求$cA$可用符号："*",例如：
+```{python}
+c = 2
+c * A
+```
+
+# 矩阵相乘
+$A$为$m\times n$矩阵,$B$为$n\times k$矩阵,在Python中求$AB$，可以使用
+函数np.dot(A, B), 或者直接A * B，例如：
+```{python}
+A = np.mat(range(12)).reshape((3, 4))
+A = np.mat(range(12)).reshape((4, 3))
+A * B
+np.dot(A, B)
+```
+
+# 矩阵对角元素相关运算
+例如要取一个方阵的对角元素
+```{python}
+A = np.mat(range(16)).reshape((4, 4))
+np.diag(A)
+A.diagonal()
+```
+对一个列表或一维数组应用np.diag()函数，将产生以该列表或数组为对角
+元素的数组，例如：
+```{python}
+np.diag(np.diag(A))
+np.diag([1, 2, 3])
+```
+np.eye()和np.identity()函数，输入一个正整数n，可以产生$n\times n的对
+角矩阵。例如：
+```{python}
+np.eye(3)
+np.identity(3)
+```
+
+# 矩阵求逆
+对矩阵A求逆可以使用函数np.linalg.inv(A)，也可以直接所以命令A.I得到
+矩阵的逆，而函数np.linalg.solve()则需要两个参数a,b,可以解线性方程
+组$ax=b$,例如：
+```{python}
+x = np.random.randn(4, 4)
+a = np.mat(x)
+np.linalg.inv(a)
+np.linalg.solve(a, np.eye(4))
+a.I
+a.I * a
+```
+
+# 矩阵的特征值和特征向量
+矩阵A的谱分解为$A=U\Lambda U^{T}$，其中$\Lambda U$是由A的特征值组成的
+对角矩阵，U的列为A的特征值对于的特征向量，在Python中可以使用np.linalg.
+eig() 得到U和$\Lambda U$。例如：
+```{python}
+A = np.eye(4) + 1
+values, vectors = np.linalg.eig(A)
+vectors.dot(np.diag(values)).dot(vectors.T)
+vectors.T.dot(vectors)
+```    
+
+# 矩阵的Choleskey分解
+对于正定矩阵A，可对其进行Cholesky分解，即$A=P^{T}P$，其中P为下三角矩阵
+它要求矩阵的所有特征值必须大于零，故分解的下三角的对角元也是大于零的，在
+python中可以用函数np.linalg.cholesky()进行Cholesky分解，例如：
+```{python}
+P = np.linalg.cholesky(A)
+P.dot(P.T)
+```
+若矩阵为对称正定矩阵，可以利用Cholesky分解求行列式的值，如：
+```{python}
+np.prod(P.diagonal() ** 2)
+np.linalg.det(A)
+```
+
+# 矩阵奇异值分解
+A为$m\times n$矩阵，rank(A)=r,可以分解为：$A=UDV^{T}$,其中
+$UU^{T}=VV^{T}=I$。在python中可以用函数np.linalg.svd()进行奇异值分解
+，例如：
+```{python}
+A = np.mat(range(18)).reshape((3, 6))
+u, s, v_T = np.linalg.svd(A, full_matrices=False)
+u * np.diag(s) * v_T
+u * u.T
+v_T * v_T.T
+```
+
+#矩阵QR分解
+A为$m\times n$矩阵，A=QR,其中$QQ^{T}=I$，在python中可以用函数
+np.linalg.qr()进行QR分解，例如：
+```{python}
+A = np.mat(range(16)).reshape((4, 4))
+q, r = np.linalg.qr(A)
+q * r
+q * q.T
+```
+
+# 矩阵广义逆(**Moore-Penrose**)
+$m\times n$矩阵$A^{+}$称为$m\times n$矩阵的Moore-Penrose逆，如果它
+满足下列条件：
+$$1.AA^{+}A=A; 2.A^{+}AA^{+}=A^{+};3.AA^{+})^{H}=AA^{+};4.(A^{+}A)^{H}=A^{+}A$$
+在python中可以使用函数np.linalg.pinv()计算矩阵A的广义逆，例如：
+```{python}
+A_ = np.linalg.pinv(A)
+#验证性质1
+A * A_ * A
+#验证性质2
+A_ * A * A_
+#验证性质3
+(A * A_).H
+A * A_
+#验证性质4
+(A_ * A).H
+A_ * A
+```
+
+# 矩阵Kronecker积
+$n\times m$矩阵A与$h\times k$矩阵B的Kronecker积为一个$nh\times mk$
+维矩阵，公式为：
+$$A_{m\times n}\bigotimes B_{h\times k} = \begin{pmatrix}a_{11}B &\cdots   &a_{1n}B \\ \vdots &\vdots  & \vdots\\ a_{m1}B & \vdots & a_{mn}B\end{pmatrix}_{nh\times mk}$$
+在python中可以用np.kron()函数计算Kronecker积，例如：
+```{python}
+A = np.mat(range(4)).reshape((2, 2))
+B = np.mat([1]*4).reshape((2, 2))
+np.kron(A, B)
+```
+
+# 矩阵的形状
+与数组一样，使用shape属性可以得到一个矩阵的形状，例如：
+```{python}
+A = np.mat(range(12)).reshape((3, 4))
+A.shape
+A.shape[0] #返回行数
+A.shape[1] #返回列数
+```
+
+# 矩阵的行和、列和、行平均、列平均
+```{python}
+np.sum(A, axis=1) #行和
+np.sum(A, axis=0) #列和
+np.mean(A, axis=1) #行平均
+np.mean(A, axis=0) #列平均
+```
+
+# 取矩阵的上、下三角部分
+在python中可以使用函数np.triu()获取一个矩阵的第k条对角线及以上的元素，
+函数np.tril()获取一个矩阵的第k条对角线及以下的元素。这两个函数都有参数k，k取整数，k大于0时指主对角线以上的第k条对角线，k小于0时指主对角线以的第k条对角线例如：
+```{python}
+A = np.mat(range(1, 17)).reshape((4, 4))
+np.triu(A)
+np.tril(A)
+np.triu(A, k=1)
+np.triu(A, k=-1)
+```
+
+# 行列式的值
+```{python}
+x = np.mat(np.random.rand(4, 4))
+np.linalg.det(x)
+```
+
+# 向量化算子
+记矩阵$A = \begin{Bmatrix}a_{ij}\end{Bmatrix}_{m\times n}$,
+$vec(A)=(a_{11},\cdots a_{m1},\cdots ,a_{1n},\cdots ,a_{mn})_{T}$
+记矩阵$B = \begin{Bmatrix}b_{ij}\end{Bmatrix}_{n\times n}$,
+$vec(A)=(b_{11},\cdots b_{n1},\cdots ,b_{22},\cdots ,a_{n2},\cdots,b_{nn})_{T}$
+```{python}
+def vec(x):
+    return np.mat(x).ravel().T
+def vech(x):
+    x = np.mat(x)
+    t = x[np.tril(x) == x]
+    return t
+x = np.arange(12).reshape((3, 4))
+vec(x)
+vech(x)
+```
+
+# 时间序列的滞后值
+```{python}
+def tslag(x, k=0, trim=False):
+    """
+    在时间序列分析中，我们常常要用到一个序列的滞后序列,x为一个数组，
+    k为正整数，k+1代表滞后阶数，若trim为假，则返回序列与原序列长度相同，
+    但含有NA值；若trim项为真，则返回序列中不含有NA值。
+    """
+    c = np.array([])
+    x = x.astype(float)
+    for i in range(k+1):
+        y = x.copy()
+        y[(i+1):] = x[:-(i+1)]
+        y[:(i+1)] = np.nan
+        c = np.append(c, y)
+    c = c.reshape((x.shape[0], (k+1)), order='F')
+    if trim == True:
+        c = c[~np.isnan(c).any(axis=1)]
+    return c
+
+x = np.arange(20)
+tslag(x, k=3)
+tslag(x, k=3, trim=True)
+```
