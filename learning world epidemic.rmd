@@ -97,40 +97,39 @@ deaths = pd.read_csv('./data/time_series_19-covid-Deaths.csv')
 confirmed.head()
 ```
 
-| Province/State | Country/Region |     Lat |     Long | 1/22/20 | 1/23/20 |  ... | 2/27/20 | 2/28/20 |
-| -------------: | -------------: | ------: | -------: | ------: | ------: | ---: | ------: | ------- |
-|          Anhui | Mainland China | 31.8257 | 117.2264 |       1 |       9 |  ... |     989 | 990     |
-|        Beijing | Mainland China | 40.1824 | 116.4142 |      14 |      22 |  ... |     410 | 410     |
-|      Chongqing | Mainland China | 30.0572 | 107.8740 |       6 |       9 |  ... |     576 | 576     |
-|         Fujian | Mainland China | 26.0789 | 117.9874 |       1 |       5 |  ... |     296 | 296     |
-|          Gansu | Mainland China | 36.0611 | 103.8343 |       0 |       2 |  ... |      91 | 91      |
+| Province/State | Country/Region |     Lat |     Long | 1/22/20 |  ... | 2/28/20 |
+| -------------: | -------------: | ------: | -------: | ------: | ---: | ------- |
+|          Anhui | Mainland China | 31.8257 | 117.2264 |   1     |  ... |   990   |
+|        Beijing | Mainland China | 40.1824 | 116.4142 |   14    |  ... |   410   |
+|      Chongqing | Mainland China | 30.0572 | 107.8740 |   6     |  ... |   576   |
+|         Fujian | Mainland China | 26.0789 | 117.9874 |   1     |  ... |   296   |
+|          Gansu | Mainland China | 36.0611 | 103.8343 |   0     |  ... |   91    |
 
 ```{python}
 recovered.head()
 ```
 
-| Province/State | Country/Region |     Lat |     Long | 1/22/20 | 1/23/20 |  ... | 2/27/20 | 2/28/20 |
-| -------------: | -------------: | ------: | -------: | ------: | ------: | ---: | ------: | ------- |
-|          Anhui | Mainland China | 31.8257 | 117.2264 |       0 |       0 |  ... |     792 | 821     |
-|        Beijing | Mainland China | 40.1824 | 116.4142 |       0 |       0 |  ... |     248 | 257     |
-|      Chongqing | Mainland China | 30.0572 | 107.8740 |       0 |       0 |  ... |     401 | 422     |
-|         Fujian | Mainland China | 26.0789 | 117.9874 |       0 |       0 |  ... |     228 | 235     |
-|          Gansu | Mainland China | 36.0611 | 103.8343 |       0 |       0 |  ... |      81 | 82      |
+| Province/State | Country/Region |     Lat |     Long | 1/22/20 |  ... | 2/28/20 |
+| -------------: | -------------: | ------: | -------: | ------: | ---: | ------- |
+|          Anhui | Mainland China | 31.8257 | 117.2264 |    0    |  ... |   821   |
+|        Beijing | Mainland China | 40.1824 | 116.4142 |    0    |  ... |   257   |
+|      Chongqing | Mainland China | 30.0572 | 107.8740 |    0    |  ... |   422   |
+|         Fujian | Mainland China | 26.0789 | 117.9874 |    0    |  ... |   235   |
+|          Gansu | Mainland China | 36.0611 | 103.8343 |    0    |  ... |   82    |
 
 ```{python}
 deaths.head()
 ```
 
-| Province/State | Country/Region |     Lat |     Long | 1/22/20 | 1/23/20 |  ... | 2/27/20 | 2/28/20 |
-| -------------: | -------------: | ------: | -------: | ------: | ------: | ---: | ------: | ------- |
-|          Anhui | Mainland China | 31.8257 | 117.2264 |       0 |       0 |  ... |       6 | 6       |
-|        Beijing | Mainland China | 40.1824 | 116.4142 |       0 |       0 |  ... |       5 | 7       |
-|      Chongqing | Mainland China | 30.0572 | 107.8740 |       0 |       0 |  ... |       6 | 6       |
-|         Fujian | Mainland China | 26.0789 | 117.9874 |       0 |       0 |  ... |       1 | 1       |
-|          Gansu | Mainland China | 36.0611 | 103.8343 |       0 |       0 |  ... |       2 | 2       |
+| Province/State | Country/Region |     Lat |     Long | 1/22/20 | ... | 2/28/20 |
+| -------------: | -------------: | ------: | -------: | ------: |---: | ------- |
+|          Anhui | Mainland China | 31.8257 | 117.2264 |    0    | ... |    6    |
+|        Beijing | Mainland China | 40.1824 | 116.4142 |    0    | ... |    7    |
+|      Chongqing | Mainland China | 30.0572 | 107.8740 |    0    | ... |    6    |
+|         Fujian | Mainland China | 26.0789 | 117.9874 |    0    | ... |    1    |
+|          Gansu | Mainland China | 36.0611 | 103.8343 |    0    | ... |    2    |
 
-使用shape则可以打印出三个数据表的维度。每个都是
-（114，42）维，即114行，42列。
+使用shape则可以打印出三个数据表的维度。每个都是（114，42），即114行，42列。
 ```{python}
 print(confirmed.shape)
 print(recovered.shape)
@@ -182,7 +181,7 @@ all_confirmed
 
 下面就可以画出疫情发展趋势图了。
 ```{python}
-plt.figure(figsize=(15, 6))
+plt.figure(figsize=(12, 6))
 plt.plot(all_confirmed, color='r', label='确诊', marker='o')
 plt.plot(all_deaths, color='lime', label='死亡', marker='o')
 plt.plot(all_recovered, color='b', label='治愈', marker='o')
@@ -201,7 +200,7 @@ plt.show()
 下面看看新冠肺炎的死亡率，首先计算死亡率数据，然后就可以直接画图。
 ```{python}
 death_rate = (all_deaths/all_confirmed)*100
-plt.figure(figsize=(15, 6))
+plt.figure(figsize=(12, 6))
 plt.plot(death_rate,color = 'lime',label = '死亡',marker = 'o')
 plt.xticks(rotation = 45,size = 5)
 plt.yticks(size = 15)
@@ -239,7 +238,7 @@ print(China_cases)
 下面画出中国大陆每个省份的疫情数量图。
 ```{python}
 Mainland_china = China_cases.sort_values(by='confirmed',ascending=True)
-Mainland_china.plot(kind='barh', figsize=(15, 10), color = ['red','blue','lime'], width=1, rot=2)
+Mainland_china.plot(kind='barh', figsize=(20, 15), color = ['red','blue','lime'], width=1, rot=2)
 plt.title('中国大陆各省市疫情数量', size=30)
 plt.ylabel('省/市',size=20)
 plt.xlabel('数量',size = 20)
@@ -263,7 +262,7 @@ death_rate = (deaths_china/confirmed_china)*100
 ```
 接下来就是画图了
 ```{python}
-plt.figure(figsize=(15, 6))
+plt.figure(figsize=(12, 6))
 plt.plot(recover_rate, color = 'blue', label = '治愈率', marker = 'o')
 plt.plot(death_rate, color = 'lime', label = '死亡率', marker = 'o')
 plt.title('中国大陆治愈率 VS 死亡率',size=20)
@@ -290,7 +289,7 @@ death_rate = (deaths_others/confirmed_others)*100
 ```
 然后就是画图了。
 ```{python}
-plt.figure(figsize=(15, 6))
+plt.figure(figsize=(12, 6))
 plt.plot(recover_rate, color = 'blue', label = '治愈率', marker = 'o')
 plt.plot(death_rate, color = 'lime', label = '死亡率', marker = 'o')
 plt.title('其他地区治愈率 VS 死亡率',size=20)
@@ -314,7 +313,7 @@ others_countries = others_countries.groupby('Country/Region').sum()
 然后画图
 ```{python}
 sorted = others_countries.sort_values(by = 'confirmed',ascending=True)
-sorted.plot(kind='barh', figsize=(15, 10), color = ['red','blue','lime'], width=1,rot=2)
+sorted.plot(kind='barh', figsize=(20, 15), color = ['red','blue','lime'], width=1,rot=2)
 plt.title('世界其他地区疫情数量', size=30)
 plt.ylabel('Country/Region',size = 20)
 plt.xlabel('数量',size = 20)
