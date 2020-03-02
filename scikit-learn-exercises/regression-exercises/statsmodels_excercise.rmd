@@ -89,7 +89,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-gdp = pd.read_excel('..\..\GDP.xls')
+gdp = pd.read_excel('..\..\mydata\GDP.xls')
 gdp.head()
 gdp.isnull().sum()
 gdp.dropna(inplace=True)
