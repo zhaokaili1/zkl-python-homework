@@ -142,7 +142,7 @@ plt.rcParams['axes.unicode_minus'] = False   #用来正常显示负号
 ```
 首先看看在我们的数据中，哪些地区发生了疫情。可以看出一共
 61个地区都有新冠肺炎病例。
-```{python}
+```{python, echo=F}
 countries = confirmed['Country/Region'].unique()
 print(countries)
 countries.shape[0]
@@ -208,14 +208,14 @@ cases <- read.csv("./mydata/China_cases.csv", head=T)
 kable(cases ,align = "c", caption="中国各省疫情情况分布",longtable = T, booktabs = T, linesep="")
 ```
 下面画出中国大陆每个省份的疫情数量图。(图\@ref(fig:fig3))
-```{python fig3, fig.cap="中国大陆各省市疫情数量", fig.height=40,fig.width=30}
+```{python fig3, fig.cap="中国大陆各省市疫情数量", out.height="80%",out.width="95%",dev='pdf',eval=TRUE}
 Mainland_china = China_cases.sort_values(by='confirmed',ascending=True)
-Mainland_china.plot(kind='barh', figsize=(40, 20),color = ['red','blue','lime'], width=1, rot=2)
-plt.ylabel('省/市',size=20)
-plt.xlabel('数量',size=20)
-plt.yticks(size=20)
-plt.xticks(size=20)
-plt.legend(bbox_to_anchor=(0.95,0.95),fontsize = 20)
+Mainland_china.plot(kind='barh', figsize=(20,30),color = ['red','blue','lime'], width=1, rot=2)
+plt.ylabel('省/市',size=40)
+plt.xlabel('数量',size=40)
+plt.yticks(size=30)
+plt.xticks(size=30)
+plt.legend(bbox_to_anchor=(0.95,0.95),fontsize = 40)
 plt.tight_layout()
 plt.show()
 ```
@@ -285,13 +285,13 @@ others_countries = others_countries.groupby('Country/Region').sum()
 sorted = others_countries.sort_values(by = 'confirmed',ascending=True)
 ```
 然后画图(图\@ref(fig:fig6))
-```{python fig6, fig.cap="世界其他地区疫情数量", fig.height=40,fig.width=30}
-sorted.plot(kind='barh', figsize=(40, 20),color = ['red','blue','lime'], width=1,rot=2)
-plt.ylabel('Country/Region',size = 20)
-plt.xlabel('数量',size = 20)
-plt.yticks(size=20)
-plt.xticks(size=20)
-plt.legend(bbox_to_anchor=(0.95,0.95),fontsize = 20)
+```{python fig6, fig.cap="世界其他地区疫情数量", out.height="80%",out.width="95%",dev='pdf',eval=TRUE}
+sorted.plot(kind='barh', figsize=(20, 30),color = ['red','blue','lime'], width=1,rot=2)
+plt.ylabel('Country/Region',size = 30)
+plt.xlabel('数量',size = 30)
+plt.yticks(size=30)
+plt.xticks(size=30)
+plt.legend(bbox_to_anchor=(0.95,0.95),fontsize = 30)
 plt.tight_layout()
 plt.show()
 ```
@@ -341,7 +341,7 @@ popup：str型或folium.Popup()对象输入，用于控制标记部件的具体�
 ```{python, echo=F}
 world_map
 ```
-```{r fig7, echo=F,fig.cap="全球疫情变化图",fig.height=10,fig.width=15,cache=F,dev="png",results='markup'}
+```{r fig7, echo=F,fig.cap="全球疫情变化图",out.width="90%", fig.align='center',cache=F,dev="png",results='markup'}
 include_graphics("./mydata/png1.png")
 ```
 接下来使用plotly绘制每日疫情扩散地图，首先是导入包
@@ -394,16 +394,17 @@ all_data = confirmed.merge(deaths[merge_on + ['deaths']], how='left', on=merge_o
 ```{python, echo=F}
 all_data.head().to_csv("./mydata/all_mydata.csv", index=False)
 ```
+
 由于要演示的是疫情扩散地图，因此使用实心圆来表示每个地区的疫情变化，而实心圆的大小
 则代表了三种数据的大小，所以在我们的数据里要加一列，使用confirmed数据的二分之一次方来表示实心圆的大小。
 ```{python}
-Coronavirus_map = all_mydata.groupby(['date_dt', 'province'])['confirmed', 'deaths','recovered', 'Lat', 'Long'].max().reset_index()
+Coronavirus_map = all_data.groupby(['date_dt', 'province'])['confirmed', 'deaths','recovered', 'Lat', 'Long'].max().reset_index()
 Coronavirus_map['size'] = Coronavirus_map.confirmed.pow(0.5)  # 创建实心圆大小
 Coronavirus_map['date_dt'] = Coronavirus_map['date_dt'].dt.strftime('%Y-%m-%d')
 ```
 
 ```{python, echo=F}
-all_mydata.head().to_csv("./mydata/all_mydata1.csv", index=False)
+all_data.head().to_csv("./mydata/all_mydata1.csv", index=False)
 ```
 最后就是绘图部分
 ```{python, eval=F}
@@ -414,7 +415,7 @@ fig = px.scatter_geo(Coronavirus_map, lat='Lat', lon='Long', scope='asia',
 fig.update(layout_coloraxis_showscale=False)
 ```
 
-```{r fig8,echo=F,fig.cap="亚洲地区疫情扩散图",fig.height=20,fig.width=30,cache=F,dev="png",results='markup'}
+```{r fig8,echo=F,fig.cap="亚洲地区疫情扩散图",out.width="90%", fig.align='center',cache=F,dev="png",results='markup'}
 include_graphics("./mydata/png2.png")
 ```
 得到的图形如图\@ref(fig:fig8)所示。
