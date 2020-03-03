@@ -84,10 +84,12 @@ import pandas as pd
 然后就是导入数据，数据已经从github上下载，共三个文件，
 分别是疫情的确诊数（confirmed），治愈数（recoved），死亡数（deaths），
 基本上每日会更新最新疫情数据。
+import os 
+os.getcwd()
 ```{python}
-confirmed = pd.read_csv(r'.\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Confirmed.csv')
-recovered = pd.read_csv(r'.\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Recovered.csv')
-deaths = pd.read_csv(r'.\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Deaths.csv')
+confirmed = pd.read_csv(r'..\COVID-2019\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Confirmed.csv')
+recovered = pd.read_csv(r'..\COVID-2019\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Recovered.csv')
+deaths = pd.read_csv(r'..\COVID-2019\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Deaths.csv')
 ```
 数据已经导入,接下来查看数据的基本情况。head()
 是查看数据前五行；confirmed表里面包含发生疫情的国

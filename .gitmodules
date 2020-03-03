@@ -1,4 +1,4 @@
-[submodule "COVID-19"]
-	path = COVID-19
+[submodule "COVID-2019/COVID-19"]
+	path = COVID-2019/COVID-19
 	url = https://github.com/CSSEGISandData/COVID-19
 
