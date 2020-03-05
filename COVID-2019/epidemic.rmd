@@ -1,8 +1,8 @@
 
 ---
-title: "Python带你了解世界疫情"
+title: "世界疫情"
 author: "赵凯力"
-date: "2020-02"
+date: "2020-03"
 output:
   bookdown::html_document2:
     fig_caption: true
@@ -84,8 +84,7 @@ import pandas as pd
 然后就是导入数据，数据已经从github上下载，共三个文件，
 分别是疫情的确诊数（confirmed），治愈数（recoved），死亡数（deaths），
 基本上每日会更新最新疫情数据。
-import os 
-os.getcwd()
+
 ```{python}
 confirmed = pd.read_csv(r'..\COVID-2019\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Confirmed.csv')
 recovered = pd.read_csv(r'..\COVID-2019\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_19-covid-Recovered.csv')
@@ -96,9 +95,9 @@ deaths = pd.read_csv(r'..\COVID-2019\COVID-19\csse_covid_19_data\csse_covid_19_t
 家，经纬度，以及从2020年1月22日至今的每日的确诊
 数；recovered表则记录了治愈数；deaths表则记录了死亡数。
 ```{python, echo=F}
-confirmed.head().to_csv("./mydata/confirmed_head.csv", index=False)
-recovered.head().to_csv("./mydata/recovered_head.csv", index=False)
-deaths.head().to_csv("./mydata/deaths_head.csv", index=False)
+confirmed.head().to_csv("../mydata/confirmed_head.csv", index=False)
+recovered.head().to_csv("../mydata/recovered_head.csv", index=False)
+deaths.head().to_csv("../mydata/deaths_head.csv", index=False)
 ```
 ```{python}
 confirmed.head()
@@ -106,10 +105,10 @@ confirmed.head()
 ```{r , results='markup', echo=F}
 library(knitr)
 library(tibble)
-confirmed_head <- read.csv("./mydata/confirmed_head.csv", header=T, check.names = F)
+confirmed_head <- read.csv("../mydata/confirmed_head.csv", header=T, check.names = F)
 a <- confirmed_head[, c(1:5, 44)]
 a <- add_column(a, ...=c('...','...','...','...','...'), .after="1/22/20")
-kable(a,row.names =F,align = "c", caption="confirmed的前五行",
+kable(a,row.names =F,align = c("l","c","c","c","c","c","c"), caption="confirmed的前五行",
       longtable = T, booktabs = T, linesep="")
 ```
 
@@ -117,10 +116,10 @@ kable(a,row.names =F,align = "c", caption="confirmed的前五行",
 recovered.head()
 ```
 ```{r , results='markup', echo=F}
-confirmed_head <- read.csv("./mydata/recovered_head.csv", header=T, check.names = F)
+confirmed_head <- read.csv("../mydata/recovered_head.csv", header=T, check.names = F)
 a <- confirmed_head[, c(1:5, 44)]
 a <- add_column(a, ...=c('...','...','...','...','...'), .after="1/22/20")
-kable(a,row.names =F,align = "c", caption="recovered的前五行",
+kable(a,row.names =F,align = c("l","c","c","c","c","c","c"), caption="recovered的前五行",
       longtable = T, booktabs = T, linesep="")
 ```
 
@@ -128,10 +127,10 @@ kable(a,row.names =F,align = "c", caption="recovered的前五行",
 deaths.head()
 ```
 ```{r , results='markup', echo=F}
-confirmed_head <- read.csv("./mydata/deaths_head.csv", header=T, check.names = F)
+confirmed_head <- read.csv("../mydata/deaths_head.csv", header=T, check.names = F)
 a <- confirmed_head[, c(1:5, 44)]
 a <- add_column(a, ...=c('...','...','...','...','...'), .after="1/22/20")
-kable(a,row.names =F,align = "c", caption="deaths的前五行",
+kable(a,row.names =F,align = c("l","c","c","c","c","c","c"), caption="deaths的前五行",
       longtable = T, booktabs = T, linesep="")
 ```
 
@@ -156,15 +155,16 @@ all_confirmed = np.sum(confirmed.iloc[:,4:])
 #np.sum()函数传入数据框默认对每一列求和，结果是series
 all_recovered = np.sum(recovered.iloc[:,4:])
 all_deaths = np.sum(deaths.iloc[:,4:])
+datechange = pd.Series(all_confirmed.index).str.slice(0, -3).values
 ```
 
 下面就可以画出疫情发展趋势图了,见图\@ref(fig:fig1)。
 ```{python fig1, fig.cap="全球疫情变化趋势"}
 plt.figure(figsize=(12, 6))
-plt.plot(all_confirmed, color='r', label='确诊', marker='o')
-plt.plot(all_deaths, color='lime', label='死亡', marker='o')
-plt.plot(all_recovered, color='b', label='治愈', marker='o')
-plt.xticks(all_confirmed.index[::2],rotation = 45,size = 13)
+plt.plot(datechange, all_confirmed.values, color='r', label='确诊', marker='o')
+plt.plot(datechange, all_deaths.values, color='lime', label='死亡', marker='o')
+plt.plot(datechange, all_recovered.values, color='b', label='治愈', marker='o')
+plt.xticks(datechange[::2],rotation = 45,size = 20)
 plt.yticks(size=20)
 plt.xlabel('时 间',size = 20)
 plt.ylabel('数 目',size = 20)
@@ -181,9 +181,9 @@ plt.show()
 ```{python fig2, fig.cap="全球疫情死亡率"}
 death_rate = (all_deaths/all_confirmed)*100
 plt.figure(figsize=(12, 6))
-plt.plot(death_rate,color = 'lime',label = '死亡',marker = 'o')
-plt.xticks(all_confirmed.index[::2],rotation = 45,size = 13)
-plt.yticks(size = 15)
+plt.plot(datechange, death_rate,color = 'lime',label = '死亡',marker = 'o')
+plt.xticks(datechange[::2],rotation = 45,size = 20)
+plt.yticks(size = 20)
 plt.xlabel('时 间',size = 20)
 plt.ylabel('死亡率',size = 20)
 plt.tight_layout()
@@ -194,7 +194,7 @@ plt.show()
 的疫情情况，首先从全部数据中提取出中国大陆的数据。里面包
 含了省份，以及每个省最新的确诊数，治愈数，死亡数。
 ```{python}
-last_update = '3/01/20'  # 设置最新数据日期
+last_update = '3/4/20'  # 设置最新数据日期
 China_cases = confirmed[['Province/State',last_update]][confirmed['Country/Region'] == 'Mainland China']
 China_cases['recovered'] = recovered[[last_update]][recovered['Country/Region']=='Mainland China']
 China_cases['deaths']=deaths[[last_update]][deaths['Country/Region']=='Mainland China']
@@ -203,10 +203,10 @@ China_cases = China_cases.rename(columns = {last_update:'confirmed'})
 print(China_cases)
 ```
 ```{python, echo=F}
-China_cases.to_csv("./mydata/China_cases.csv")
+China_cases.to_csv("../mydata/China_cases.csv")
 ```
 ```{r, echo=F}
-cases <- read.csv("./mydata/China_cases.csv", head=T)
+cases <- read.csv("../mydata/China_cases.csv", head=T)
 kable(cases ,align = "c", caption="中国各省疫情情况分布",longtable = T, booktabs = T, linesep="")
 ```
 下面画出中国大陆每个省份的疫情数量图。(图\@ref(fig:fig3))
@@ -238,12 +238,12 @@ death_rate = (deaths_china/confirmed_china)*100
 接下来就是画图了(图\@ref(fig:fig4))
 ```{python fig4, fig.cap="中国大陆治愈率 VS 死亡率"}
 plt.figure(figsize=(12, 6))
-plt.plot(recover_rate, color = 'blue', label = '治愈率', marker = 'o')
-plt.plot(death_rate, color = 'lime', label = '死亡率', marker = 'o')
-plt.ylabel('数量',size=15)
-plt.xlabel('时间',size=15)
-plt.xticks(all_confirmed.index[::2], rotation=45,size=13)
-plt.yticks(size=15)
+plt.plot(datechange, recover_rate, color = 'blue', label = '治愈率', marker = 'o')
+plt.plot(datechange, death_rate, color = 'lime', label = '死亡率', marker = 'o')
+plt.ylabel('数量',size=20)
+plt.xlabel('时间',size=20)
+plt.xticks(datechange[::2], rotation=45,size=20)
+plt.yticks(size=20)
 plt.legend(loc = "upper left",fontsize = 20)
 plt.tight_layout()
 plt.show()
@@ -265,12 +265,12 @@ death_rate = (deaths_others/confirmed_others)*100
 然后就是画图了。(图\@ref(fig:fig5))
 ```{python fig5, fig.cap="其他地区治愈率 VS 死亡率"}
 plt.figure(figsize=(12, 6))
-plt.plot(recover_rate, color = 'blue', label = '治愈率', marker = 'o')
-plt.plot(death_rate, color = 'lime', label = '死亡率', marker = 'o')
-plt.ylabel('数量',size=15)
-plt.xlabel('时间',size=15)
-plt.xticks(all_confirmed.index[::2], rotation=45,size=13)
-plt.yticks(size=15)
+plt.plot(datechange, recover_rate, color = 'blue', label = '治愈率', marker = 'o')
+plt.plot(datechange, death_rate, color = 'lime', label = '死亡率', marker = 'o')
+plt.ylabel('数量',size=20)
+plt.xlabel('时间',size=20)
+plt.xticks(datechange[::2], rotation=45,size=20)
+plt.yticks(size=20)
 plt.legend(loc = "upper left",fontsize = 20)
 plt.tight_layout()
 plt.show()
@@ -308,12 +308,12 @@ others['recovered'] = recovered[[last_update]][recovered['Country/Region'] != 'M
 others['death'] = deaths[[last_update]][deaths['Country/Region'] != 'Mainland China']
 others_countries = others.rename(columns = {last_update:'confirmed'})
 others_countries.loc['94'] = ['Mainland China',30.9756,112.2707,confirmed_china[-1],recovered_china[-1],deaths_china[-1]]
-others_countries.to_csv("./mydata/others_countries.csv")
+others_countries.to_csv("../mydata/others_countries.csv")
 ```
 然后开始正式构建地图
 ```{python}
 import folium
-world_map = folium.Map(location=[10, -20], zoom_start=2.3,tiles='Stamen Toner')
+world_map = folium.Map(location=[10, -20], zoom_start=2.3,tiles='Stamen Terrain')
 ```
 上面一行是定义一个world_map对象；location的格式为[纬度,经度]；
 zoom_start表示初始地图的缩放尺寸，数值越大放大程度越大；
@@ -344,7 +344,7 @@ popup：str型或folium.Popup()对象输入，用于控制标记部件的具体�
 world_map
 ```
 ```{r fig7, echo=F,fig.cap="全球疫情变化图",out.width="90%", fig.align='center',cache=F,dev="png",results='markup'}
-include_graphics("./mydata/png1.png")
+include_graphics("../mydata/png1.png")
 ```
 接下来使用plotly绘制每日疫情扩散地图，首先是导入包
 ```{python}
@@ -367,11 +367,12 @@ confirmed.rename(columns={'Country/Region': 'country', 'Province/State': 'provin
 ```
 最终confirmed的数据如下格式
 ```{python, echo=F}
-confirmed.head().to_csv("./mydata/confirmed.csv", index=False)
+confirmed.head().to_csv("../mydata/confirmed.csv", index=False)
 ```
-```{r , results='markup', echo=F}
-confirmed <- read.csv("./mydata/confirmed.csv", header=T, check.names = F)
-kable(confirmed,row.names =F,align = "c", caption="confirmed前五行",longtable = T, booktabs = T, linesep="")
+```{r , results='markup', echo=F, out.width="80%"}
+confirmed <- read.csv("../mydata/confirmed.csv", header=T, check.names = F)
+confirmed <- confirmed[, -7]
+kable(confirmed,row.names =F,align = c("l","l","c","c","c","c","c"), caption="confirmed前五行",longtable = T, booktabs = T, linesep="")
 ```
 
 同理整理出治愈数据和死亡数据。
@@ -394,7 +395,7 @@ merge_on = ['province', 'country', 'date']
 all_data = confirmed.merge(deaths[merge_on + ['deaths']], how='left', on=merge_on).merge(recovered[merge_on + ['recovered']], how='left', on=merge_on)
 ```
 ```{python, echo=F}
-all_data.head().to_csv("./mydata/all_mydata.csv", index=False)
+all_data.head().to_csv("../mydata/all_mydata.csv", index=False)
 ```
 
 由于要演示的是疫情扩散地图，因此使用实心圆来表示每个地区的疫情变化，而实心圆的大小
@@ -406,7 +407,7 @@ Coronavirus_map['date_dt'] = Coronavirus_map['date_dt'].dt.strftime('%Y-%m-%d')
 ```
 
 ```{python, echo=F}
-all_data.head().to_csv("./mydata/all_mydata1.csv", index=False)
+all_data.head().to_csv("../mydata/all_mydata1.csv", index=False)
 ```
 最后就是绘图部分
 ```{python, eval=F}
@@ -418,6 +419,6 @@ fig.update(layout_coloraxis_showscale=False)
 ```
 
 ```{r fig8,echo=F,fig.cap="亚洲地区疫情扩散图",out.width="90%", fig.align='center',cache=F,dev="png",results='markup'}
-include_graphics("./mydata/png2.png")
+include_graphics("../mydata/png2.png")
 ```
 得到的图形如图\@ref(fig:fig8)所示。
